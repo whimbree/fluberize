@@ -111,19 +111,31 @@ let fluberizeInit = async (params, message) => {
   let codeBlk = '```';
   let fireEmoji = ':fire:';
   let hyperThonkSpinEmoji = ':hyperthonkspin:';
+  let blanchardEmoji = ':blanchard:';
   const num_langs_regex = new RegExp(/(?<=langs=)\d+(?=\s)/);
   const synonym_regex = new RegExp(/(?<=synonym=)\d+(?=\s)/);
+  const fire_easter_egg_regex = new RegExp(/(?<=fire=)\d+(?=\s)/);
+  let fire_easter_egg_arr = fire_easter_egg_regex.exec(text);
+  if (fire_easter_egg_arr === null || fire_easter_egg_arr[0] === null)
+    fire_easter_egg_arr = [0];
   let num_langs_arr = num_langs_regex.exec(text);
   if (num_langs_arr === null || num_langs_arr[0] === null) num_langs_arr = [5];
   let synonym_arr = synonym_regex.exec(text);
   if (synonym_arr === null || synonym_arr[0] === null) synonym_arr = [1];
+  let fire_easter_egg = fire_easter_egg_arr[0];
   let num_langs = num_langs_arr[0];
   let synonym = synonym_arr[0];
+  // Parse out easter egg "fire=#"
+  text = text.replace(/fire=+\d+/g, '');
   text = await Fluberize.parsingHelper(text);
   let messageObj = await Fluberize.fluberize(text, num_langs, synonym);
   let ret = messageObj.ret;
   let langsArr = messageObj.langsArr;
-  const final_msg = `Original message\n${codeBlk}${text}${codeBlk}\n<@${user_name}>, ${hyperThonkSpinEmoji} here's what I found ${hyperThonkSpinEmoji} [ langs=${langsArr}, synonym=${synonym} ]\n${codeBlk}${ret}${codeBlk}`;
+  let final_msg = '';
+  if (fire_easter_egg == 1)
+    final_msg = `Original message\n${codeBlk}${text}${codeBlk}\n${fireEmoji} @${blanchardEmoji}, ${fireEmoji} here's what I found ${fireEmoji} [ langs=[${langsArr}], synonym=${synonym} ] ${fireEmoji}\n${codeBlk}${ret}${codeBlk}`;
+  else
+    final_msg = `Original message\n${codeBlk}${text}${codeBlk}\n${hyperThonkSpinEmoji} <@${user_name}>, ${hyperThonkSpinEmoji} here's what I found ${hyperThonkSpinEmoji} [ langs=[${langsArr}], synonym=${synonym} ] ${hyperThonkSpinEmoji}\n${codeBlk}${ret}${codeBlk}`;
   return final_msg;
 };
 

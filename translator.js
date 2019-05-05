@@ -156,7 +156,7 @@ class Translator {
     console.log(`Multitranslate Called: ${langs}`);
     let data = text;
     for (let i = 0; i < langs.length; i++) {
-      console.log(`Translate to ${langs[i]}`);
+      console.log(`Translate to ${this.lang_dict[langs[i]]}`);
       data = await this.translate(data, langs[i]);
       console.log(data);
     }
