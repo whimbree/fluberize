@@ -8,18 +8,22 @@ const he = require('he');
 const Translator = require('./translator');
 const Thesaurizer = require('./thesaurizer');
 
-module.exports.fluberize = async (text, langs = 5, do_synonym = 1) => {
-  if (do_synonym > 0) {
+module.exports.fluberize = async (text, langs = 5, synonym = 1) => {
+  if (synonym > 0) {
     let saurus = new Thesaurizer();
-    text = await saurus.randomSynonymString(text);
+    text = await saurus.garbleString(text, synonym);
     console.log(`After Thesaurus: ${text}`);
   }
+  let langsArr = [];
   if (langs > 0) {
     let trans = new Translator();
-    text = await trans.multiTranslate(text, ['en', 'es', 'ru', 'en']);
+    let languageObj = await trans.telephone(text, langs);
+    text = languageObj.ret;
+    langsArr = languageObj.langsArr;
     console.log(`After Translator: ${text}`);
   }
-  return text;
+  if (langs == 0) langsArr = ['null'];
+  return { ret: text, langsArr };
 };
 
 // Handles nuking @user and #channel tags as well as emoji and settings flags
@@ -28,7 +32,7 @@ module.exports.parsingHelper = async str => {
   const regexLangs = /langs=+\d+/g;
   const regexSynonym = /synonym=+\d+/g;
   const regexSlackTokens = /(:[^\s:]*:)|(<@?#?!?[^>]+>)/g;
-  const regexAlphaNumeric = /([^0-9A-Za-z\s]*)/g;
+  const regexAlphaNumeric = /([^\.\!\?0-9A-Za-z\s]*)/g;
   const replaceString = '';
   let text = str;
   text = he.decode(text);
@@ -36,6 +40,7 @@ module.exports.parsingHelper = async str => {
   text = text.replace(regexSynonym, replaceString);
   text = text.replace(regexSlackTokens, replaceString);
   text = text.replace(regexAlphaNumeric, replaceString);
+  text = text.trim();
   console.log(`Parsed Message: ${text}`);
   return text;
 };

@@ -11,7 +11,7 @@
 #
 # Happy Coding!
 
-service: fluberize # NOTE: update this with your service name
+service: Fluberize # NOTE: update this with your service name
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
@@ -23,9 +23,9 @@ provider:
   runtime: nodejs8.10
   environment:
     XDG_CONFIG_HOME : '/tmp'
-    SLACK_CLIENT_ID: 'YOURS_GOES_HERE'
-    SLACK_CLIENT_SECRET: 'YOURS_GOES_HERE'
-    USER_TOKEN: 'YOURS_GOES_HERE'
+    SLACK_CLIENT_ID: 'YOUR_CREDS_HERE'
+    SLACK_CLIENT_SECRET: 'YOUR_CREDS_HERE'
+    USER_TOKEN: 'YOUR_CREDS_HERE'
 
 package:
   excludeDevDependencies: false

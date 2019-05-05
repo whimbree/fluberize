@@ -137,63 +137,53 @@ class Translator {
   // Sends text through a bunch of random languages
 
   async telephone(text, langs) {
-    if (langs < 0 || langs == 0) return text;
-    let arr = [];
+    if (langs < 0 || langs == 0) return { ret: text, langsArr: [] };
+    let langsArr = [];
     for (let i = 0; i <= langs; i++) {
       let random = this.lang_codes[
         Math.floor(Math.random() * this.lang_codes.length)
       ];
-      arr.push(random);
+      langsArr.push(random);
     }
-    console.log(`Languages Chosen: ${arr}`);
-    let ret = await multiTranslate(text, arr);
-
-    return { ret, arr };
+    langsArr.push('en');
+    //langsArr = ['es', 'ru', 'en'];
+    console.log(`Languages Chosen: ${langsArr}`);
+    let ret = await this.multiTranslate(text, langsArr);
+    return { ret, langsArr };
   }
 
   async multiTranslate(text, langs) {
-    let data = text;
     console.log(`Multitranslate Called: ${langs}`);
-    let prev = 'en'; // Start off by converting to English
-    let promise = await gtranslate(data, { to: prev });
-    try {
-      data = promise.text;
-    } catch (err) {
-      console.log(err);
-    }
+    let data = text;
     for (let i = 0; i < langs.length; i++) {
-      console.log(langs[i]);
-      promise = await gtranslate(data, { from: prev, to: langs[i] });
-      try {
-        data = promise.text;
-      } catch (err) {
-        console.log(err);
-      }
+      console.log(`Translate to ${langs[i]}`);
+      data = await this.translate(data, langs[i]);
       console.log(data);
-      prev = langs[i];
     }
     return data;
   }
 
-  // async translate(text, langFrom, langTo) {
-  //   let data = text;
-  //   try {
-  //     data = await gtranslate(text, { from: langFrom, to: langTo });
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  //   return data.text;
-  // }
+  async translate(text, langFrom, langTo) {
+    let data = text;
+    try {
+      let promise = await gtranslate(text, { from: langFrom, to: langTo });
+      data = promise.text;
+    } catch (err) {
+      console.log(err);
+    }
+    return data;
+  }
 
-  // async translate(text, lang) {
-  //   let data = text;
-  //   try {
-  //     data = await gtranslate(text, { to: lang });
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  //   return data.text;
-  // }
+  async translate(text, lang) {
+    let data = text;
+    try {
+      let promise = await gtranslate(text, { to: lang });
+      data = promise.text;
+    } catch (err) {
+      console.log(err);
+    }
+    return data;
+  }
 }
 
 // let start = async () => {

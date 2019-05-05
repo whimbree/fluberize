@@ -5,6 +5,14 @@ let moby = require('moby');
 class Thesaurizer {
   constructor() {}
 
+  async garbleString(str, times) {
+    let ret = str;
+    for (let i = 0; i < times; i++) {
+      ret = await this.randomSynonymString(ret);
+    }
+    return ret;
+  }
+
   async randomSynonymString(str) {
     let words = str.split(' ');
     let ret = '';

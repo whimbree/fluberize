@@ -71,59 +71,59 @@ module.exports.authorization = async (event, context, callback) => {
 
 //(/fluberize) entrypoint
 module.exports.fluberize = async (event, context, callback) => {
-  const response = {
+  let response = {
     statusCode: 200,
     body: ''
   };
-  await callback(null, response);
-  await fluberizeHandoff(event);
+  await fluberizeHandoff(event, callback(null, response));
 };
 
-let fluberizeHandoff = async event => {
+let fluberizeHandoff = async (event, nuts) => {
   const params = qs.parse(event.body);
   const parseSlackTokenRegex = /(<@?#?!?[^>]+>)/g;
-
-  // If fluberize called without text input
-  // if (!params.text) {
-  //   slackGET('conversations.history', { channel: params.channel_id, limit: 1 })
-  //     .then(res => {
-  //       let message = JSON.parse(res).messages[0]['text'];
-  //       console.log(
-  //         `Fluberize called by: ${params.user_name} with message: ${message}`
-  //       );
-  //       let processedMessage = `${SPONGE_EMOJI} ${parsingHelper(
-  //         message,
-  //         spongemockify
-  //       ).join('')} ${SPONGE_EMOJI}`;
-  //       sendJSON_POST(processedMessage, params.response_url);
-  //     })
-  //     .catch(error => console.log(`Spongemock w/o text error: ${error}`));
-  // }
-  // //Else use provided command input
-  // else {
+  let message = '';
+  // Get previous message in channel
+  if (!params.text) {
+    let gets = await slackGET('conversations.history', {
+      channel: params.channel_id,
+      limit: 1
+    });
+    try {
+      message = JSON.parse(gets).messages[0]['text'];
+    } catch (err) {
+      console.log(err);
+    }
+  }
+  // Else use provided command input
+  else {
+    message = params.text;
+  }
   console.log(
-    `Fluberize called by: ${params.user_name} with message: ${params.text}`
+    `Fluberize called by: ${params.user_name} with message: ${message}`
   );
-  let processedMessage = await fluberizeInit(params);
+  let processedMessage = await fluberizeInit(params, message);
   sendJSON_POST(processedMessage, params.response_url);
 };
 
-let fluberizeInit = async params => {
-  let text = params.text;
+let fluberizeInit = async (params, message) => {
+  let text = message;
   let user_name = params.user_name;
   let codeBlk = '```';
+  let fireEmoji = ':fire:';
+  let hyperThonkSpinEmoji = ':hyperthonkspin:';
   const num_langs_regex = new RegExp(/(?<=langs=)\d+(?=\s)/);
-  const do_synonym_regex = new RegExp(/(?<=synonym=)\d+(?=\s)/);
+  const synonym_regex = new RegExp(/(?<=synonym=)\d+(?=\s)/);
   let num_langs_arr = num_langs_regex.exec(text);
   if (num_langs_arr === null || num_langs_arr[0] === null) num_langs_arr = [5];
-  let do_synonym_arr = do_synonym_regex.exec(text);
-  if (do_synonym_arr === null || do_synonym_arr[0] === null)
-    do_synonym_arr = [1];
+  let synonym_arr = synonym_regex.exec(text);
+  if (synonym_arr === null || synonym_arr[0] === null) synonym_arr = [1];
   let num_langs = num_langs_arr[0];
-  let do_synonym = do_synonym_arr[0];
+  let synonym = synonym_arr[0];
   text = await Fluberize.parsingHelper(text);
-  let ret = await Fluberize.fluberize(text, num_langs, do_synonym);
-  const final_msg = `Original message\n${codeBlk}${text}${codeBlk}\n<@${user_name}>, here's what I found [ langs=['en', 'es', 'ru', 'en'], synonym=${do_synonym} ]\n${codeBlk}${ret}${codeBlk}`;
+  let messageObj = await Fluberize.fluberize(text, num_langs, synonym);
+  let ret = messageObj.ret;
+  let langsArr = messageObj.langsArr;
+  const final_msg = `Original message\n${codeBlk}${text}${codeBlk}\n<@${user_name}>, ${hyperThonkSpinEmoji} here's what I found ${hyperThonkSpinEmoji} [ langs=${langsArr}, synonym=${synonym} ]\n${codeBlk}${ret}${codeBlk}`;
   return final_msg;
 };
 
