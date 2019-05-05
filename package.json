@@ -1,0 +1,17 @@
+{
+  "name": "fluberize",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vitalets/google-translate-api": "^2.8.0",
+    "he": "^1.2.0",
+    "moby": "^1.1.2",
+    "querystring": "^0.2.0",
+    "request": "^2.34",
+    "request-promise": "^4.2.2",
+    "url": "^0.11.0"
+  }
+}
