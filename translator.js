@@ -139,7 +139,7 @@ class Translator {
   async telephone(text, langs) {
     if (langs < 0 || langs == 0) return { ret: text, langsArr: [] };
     let langsArr = [];
-    for (let i = 0; i <= langs; i++) {
+    for (let i = 0; i < langs; i++) {
       let random = this.lang_codes[
         Math.floor(Math.random() * this.lang_codes.length)
       ];
